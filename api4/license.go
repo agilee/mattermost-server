@@ -16,11 +16,19 @@ import (
 func (api *API) InitLicense() {
 	getClientLicenseChain := evans.New(
 		requireQueryParam("format"),
-		queryInSet("format", []string{"old"}),
+		requireQueryInSet("format", []string{"old"}),
 	).Then(getClientLicense)
 
-	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(addLicense)).Methods("POST")
-	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(removeLicense)).Methods("DELETE")
+	addLicenseChain := evans.New(
+		requireSystemPermissions([]*model.Permission{model.PERMISSION_MANAGE_SYSTEM}),
+	).Then(addLicense)
+
+	removeLicenseChain := evans.New(
+		requireSystemPermissions([]*model.Permission{model.PERMISSION_MANAGE_SYSTEM}),
+	).Then(removeLicense)
+
+	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(addLicenseChain)).Methods("POST")
+	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(removeLicenseChain)).Methods("DELETE")
 	api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(getClientLicenseChain)).Methods("GET")
 }
 
@@ -40,11 +48,6 @@ func addLicense(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("addLicense", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 	c.LogAudit("attempt")
-
-	if !c.App.SessionHasPermissionTo(*c.App.Session(), model.PERMISSION_MANAGE_SYSTEM) {
-		c.SetPermissionError(model.PERMISSION_MANAGE_SYSTEM)
-		return
-	}
 
 	if *c.App.Config().ExperimentalSettings.RestrictSystemAdmin {
 		c.Err = model.NewAppError("addLicense", "api.restricted_system_admin", nil, "", http.StatusForbidden)
@@ -111,11 +114,6 @@ func removeLicense(c *Context, w http.ResponseWriter, r *http.Request) {
 	auditRec := c.MakeAuditRecord("removeLicense", audit.Fail)
 	defer c.LogAuditRec(auditRec)
 	c.LogAudit("attempt")
-
-	if !c.App.SessionHasPermissionTo(*c.App.Session(), model.PERMISSION_MANAGE_SYSTEM) {
-		c.SetPermissionError(model.PERMISSION_MANAGE_SYSTEM)
-		return
-	}
 
 	if *c.App.Config().ExperimentalSettings.RestrictSystemAdmin {
 		c.Err = model.NewAppError("removeLicense", "api.restricted_system_admin", nil, "", http.StatusForbidden)
