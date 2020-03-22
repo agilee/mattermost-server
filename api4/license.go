@@ -9,28 +9,22 @@ import (
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/v5/audit"
+	"github.com/mattermost/mattermost-server/v5/evans"
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
 func (api *API) InitLicense() {
+	getClientLicenseChain := evans.New(
+		requireQueryParam("format"),
+		queryInSet("format", []string{"old"}),
+	).Then(getClientLicense)
+
 	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(addLicense)).Methods("POST")
 	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(removeLicense)).Methods("DELETE")
-	api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(getClientLicense)).Methods("GET")
+	api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(getClientLicenseChain)).Methods("GET")
 }
 
 func getClientLicense(c *Context, w http.ResponseWriter, r *http.Request) {
-	format := r.URL.Query().Get("format")
-
-	if format == "" {
-		c.Err = model.NewAppError("getClientLicense", "api.license.client.old_format.app_error", nil, "", http.StatusNotImplemented)
-		return
-	}
-
-	if format != "old" {
-		c.SetInvalidParam("format")
-		return
-	}
-
 	var clientLicense map[string]string
 
 	if c.App.SessionHasPermissionTo(*c.App.Session(), model.PERMISSION_MANAGE_SYSTEM) {
