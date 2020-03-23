@@ -14,10 +14,10 @@ import (
 )
 
 func (api *API) InitLicense() {
-	getClientLicenseChain := evans.New(
-		requireQueryParam("format"),
-		requireQueryInSet("format", []string{"old"}),
-	).Then(getClientLicense)
+	// getClientLicenseChain := evans.New(
+	// 	requireQueryParam("format"),
+	// 	requireQueryInSet("format", []string{"old"}),
+	// ).Then(getClientLicense)
 
 	addLicenseChain := evans.New(
 		requireSystemPermissions([]*model.Permission{model.PERMISSION_MANAGE_SYSTEM}),
@@ -29,7 +29,15 @@ func (api *API) InitLicense() {
 
 	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(addLicenseChain)).Methods("POST")
 	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(removeLicenseChain)).Methods("DELETE")
-	api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(getClientLicenseChain)).Methods("GET")
+
+	// api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(getClientLicenseChain)).Methods("GET")
+
+	api.BaseRoutes.ApiRoot.HandleWithMiddleware(
+		"/license/client",
+		api.ApiHandler(getClientLicense),
+		requireQueryParam("format"),
+		requireQueryInSet("format", []string{"old"}),
+	).Methods("GET")
 }
 
 func getClientLicense(c *Context, w http.ResponseWriter, r *http.Request) {
