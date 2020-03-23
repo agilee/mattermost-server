@@ -202,7 +202,7 @@ func NewServer(options ...Option) (*Server, error) {
 		s.NotificationsLog.ChangeLevels(utils.MloggerConfigFromLoggerConfig(notificationLogSettings, utils.GetNotificationsLogFileLocation))
 	})
 
-	s.HTTPService = httpservice.MakeHTTPService(s.FakeApp())
+	s.HTTPService = httpservice.MakeHTTPService(s)
 
 	s.ImageProxy = imageproxy.MakeImageProxy(s, s.HTTPService, s.Log)
 

@@ -78,7 +78,7 @@ func (a *App) configOrLicenseListener() {
 func (s *Server) initJobs() {
 	s.Jobs = jobs.NewJobServer(s, s.Store)
 	if jobsDataRetentionJobInterface != nil {
-		s.Jobs.DataRetentionJob = jobsDataRetentionJobInterface(s.FakeApp())
+		s.Jobs.DataRetentionJob = jobsDataRetentionJobInterface(s)
 	}
 	if jobsMessageExportJobInterface != nil {
 		s.Jobs.MessageExportJob = jobsMessageExportJobInterface(s.FakeApp())

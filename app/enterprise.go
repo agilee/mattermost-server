@@ -30,9 +30,9 @@ func RegisterComplianceInterface(f func(*App) einterfaces.ComplianceInterface) {
 	complianceInterface = f
 }
 
-var dataRetentionInterface func(*App) einterfaces.DataRetentionInterface
+var dataRetentionInterface func(*Server) einterfaces.DataRetentionInterface
 
-func RegisterDataRetentionInterface(f func(*App) einterfaces.DataRetentionInterface) {
+func RegisterDataRetentionInterface(f func(*Server) einterfaces.DataRetentionInterface) {
 	dataRetentionInterface = f
 }
 
@@ -42,9 +42,9 @@ func RegisterElasticsearchInterface(f func(*App) searchengine.SearchEngineInterf
 	elasticsearchInterface = f
 }
 
-var jobsDataRetentionJobInterface func(*App) ejobs.DataRetentionJobInterface
+var jobsDataRetentionJobInterface func(*Server) ejobs.DataRetentionJobInterface
 
-func RegisterJobsDataRetentionJobInterface(f func(*App) ejobs.DataRetentionJobInterface) {
+func RegisterJobsDataRetentionJobInterface(f func(*Server) ejobs.DataRetentionJobInterface) {
 	jobsDataRetentionJobInterface = f
 }
 
@@ -154,7 +154,7 @@ func (s *Server) initEnterprise() {
 		})
 	}
 	if dataRetentionInterface != nil {
-		s.DataRetention = dataRetentionInterface(s.FakeApp())
+		s.DataRetention = dataRetentionInterface(s)
 	}
 	if clusterInterface != nil {
 		s.Cluster = clusterInterface(s)
