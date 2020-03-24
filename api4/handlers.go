@@ -14,10 +14,10 @@ type Context = web.Context
 
 // ApiHandler provides a handler for API endpoints which do not require the user to be logged in order for access to be
 // granted.
-func (api *API) ApiHandler(h web.ContextHandlerFunc, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) http.Handler {
+func (api *API) ApiHandler(h web.ContextHandlerFunc) http.Handler {
 	handler := &web.Handler{
 		GetGlobalAppOptions: api.GetGlobalAppOptions,
-		HandleFunc:          wrapMiddleware(h, middleware),
+		HandleFunc:          h,
 		HandlerName:         web.GetHandlerName(h),
 		RequireSession:      false,
 		TrustRequester:      false,

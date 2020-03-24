@@ -23,18 +23,18 @@ func (api *API) InitLicense() {
 		requireSystemPermissions([]*model.Permission{model.PERMISSION_MANAGE_SYSTEM}),
 	)).Methods("DELETE")
 
-	api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(
-		getClientLicense,
-		requireQueryParam("format"),
-		requireQueryInSet("format", []string{"old"}),
-	)).Methods("GET")
-
-	// api.BaseRoutes.ApiRoot.HandleWithMiddleware(
-	// 	"/license/client",
+	// api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(
 	// 	getClientLicense,
 	// 	requireQueryParam("format"),
 	// 	requireQueryInSet("format", []string{"old"}),
-	// ).Methods("GET")
+	// )).Methods("GET")
+
+	api.BaseRoutes.ApiRoot.HandleWithMiddleware(
+		"/license/client",
+		getClientLicense,
+		requireQueryParam("format"),
+		requireQueryInSet("format", []string{"old"}),
+	).Methods("GET")
 }
 
 func getClientLicense(c *Context, w http.ResponseWriter, r *http.Request) {
