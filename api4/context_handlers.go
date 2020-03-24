@@ -86,30 +86,3 @@ func requireLicenseFeatures(features []string) func(f web.ContextHandlerFunc) we
 		}
 	}
 }
-
-// func requireConfig(conFunc func(config *model.Config) bool) func(f web.ContextHandlerFunc) web.ContextHandlerFunc {
-// 	return func(f web.ContextHandlerFunc) web.ContextHandlerFunc {
-// 		return func(c *web.Context, w http.ResponseWriter, r *http.Request) {
-// 			if !conFunc(*c.App.Config()) {
-// 				c.Err = model.NewAppError(
-// 					"apiMethod", // todo get this from r.Context().Value("api_method") or something...
-// 					"api.errors.required_config",
-// 					map[string]interface{}{"key"; "", "value": ""}, // TODO: Is this necessary? If so: refactor to support.
-// 					"",
-// 					http.StatusForbidden
-// 				)
-// 				return
-// 			}
-// 			f(c, w, r)
-// 		}
-// 	}
-// }
-
-// func requireFoo(someParam []string) func(f web.ContextHandlerFunc) web.ContextHandlerFunc {
-// 	return func(f web.ContextHandlerFunc) web.ContextHandlerFunc {
-// 		return func(c *web.Context, w http.ResponseWriter, r *http.Request) {
-// 			// Check for foo here
-// 			f(c, w, r)
-// 		}
-// 	}
-// }

@@ -17,7 +17,7 @@ import (
 
 type Handler interface {
 	Handle(path string, handler http.Handler) *mux.Route
-	HandleWithMiddleware(path string, handler http.Handler, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) *mux.Route
+	HandleWithMiddleware(path string, cHandlerFunc web.ContextHandlerFunc, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) *mux.Route
 	PathPrefix(tpl string) *mux.Route
 }
 
@@ -34,9 +34,11 @@ func (h *Router) PathPrefix(tpl string) *mux.Route {
 	return h.muxRouter.PathPrefix(tpl)
 }
 
-func (h *Router) HandleWithMiddleware(path string, handler http.Handler, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) *mux.Route {
-	// TODO: add the middleware
-	return h.muxRouter.Handle(path, handler)
+func (h *Router) HandleWithMiddleware(path string, cHandlerFunc web.ContextHandlerFunc, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) *mux.Route {
+	for i := range middleware {
+		cHandlerFunc = middleware[len(middleware)-1-i](cHandlerFunc)
+	}
+	return h.muxRouter.Handle(path, h.api.ApiHandler(cHandlerFunc))
 }
 
 type Routes struct {

@@ -9,35 +9,32 @@ import (
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/v5/audit"
-	"github.com/mattermost/mattermost-server/v5/evans"
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
 func (api *API) InitLicense() {
-	// getClientLicenseChain := evans.New(
-	// 	requireQueryParam("format"),
-	// 	requireQueryInSet("format", []string{"old"}),
-	// ).Then(getClientLicense)
-
-	addLicenseChain := evans.New(
+	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(
+		addLicense,
 		requireSystemPermissions([]*model.Permission{model.PERMISSION_MANAGE_SYSTEM}),
-	).Then(addLicense)
+	)).Methods("POST")
 
-	removeLicenseChain := evans.New(
+	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(
+		removeLicense,
 		requireSystemPermissions([]*model.Permission{model.PERMISSION_MANAGE_SYSTEM}),
-	).Then(removeLicense)
+	)).Methods("DELETE")
 
-	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(addLicenseChain)).Methods("POST")
-	api.BaseRoutes.ApiRoot.Handle("/license", api.ApiSessionRequired(removeLicenseChain)).Methods("DELETE")
-
-	// api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(getClientLicenseChain)).Methods("GET")
-
-	api.BaseRoutes.ApiRoot.HandleWithMiddleware(
-		"/license/client",
-		api.ApiHandler(getClientLicense),
+	api.BaseRoutes.ApiRoot.Handle("/license/client", api.ApiHandler(
+		getClientLicense,
 		requireQueryParam("format"),
 		requireQueryInSet("format", []string{"old"}),
-	).Methods("GET")
+	)).Methods("GET")
+
+	// api.BaseRoutes.ApiRoot.HandleWithMiddleware(
+	// 	"/license/client",
+	// 	getClientLicense,
+	// 	requireQueryParam("format"),
+	// 	requireQueryInSet("format", []string{"old"}),
+	// ).Methods("GET")
 }
 
 func getClientLicense(c *Context, w http.ResponseWriter, r *http.Request) {
