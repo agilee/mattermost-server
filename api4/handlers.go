@@ -52,10 +52,10 @@ func (api *API) ApiSessionRequired(h web.ContextHandlerFunc, middleware ...func(
 // ApiSessionRequiredMfa provides a handler for API endpoints which require a logged-in user session  but when accessed,
 // if MFA is enabled, the MFA process is not yet complete, and therefore the requirement to have completed the MFA
 // authentication must be waived.
-func (api *API) ApiSessionRequiredMfa(h web.ContextHandlerFunc, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) http.Handler {
+func (api *API) ApiSessionRequiredMfa(h web.ContextHandlerFunc) http.Handler {
 	handler := &web.Handler{
 		GetGlobalAppOptions: api.GetGlobalAppOptions,
-		HandleFunc:          wrapMiddleware(h, middleware),
+		HandleFunc:          h,
 		HandlerName:         web.GetHandlerName(h),
 		RequireSession:      true,
 		TrustRequester:      false,
@@ -72,10 +72,10 @@ func (api *API) ApiSessionRequiredMfa(h web.ContextHandlerFunc, middleware ...fu
 // ApiHandlerTrustRequester provides a handler for API endpoints which do not require the user to be logged in and are
 // allowed to be requested directly rather than via javascript/XMLHttpRequest, such as site branding images or the
 // websocket.
-func (api *API) ApiHandlerTrustRequester(h web.ContextHandlerFunc, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) http.Handler {
+func (api *API) ApiHandlerTrustRequester(h web.ContextHandlerFunc) http.Handler {
 	handler := &web.Handler{
 		GetGlobalAppOptions: api.GetGlobalAppOptions,
-		HandleFunc:          wrapMiddleware(h, middleware),
+		HandleFunc:          h,
 		HandlerName:         web.GetHandlerName(h),
 		RequireSession:      false,
 		TrustRequester:      true,
@@ -91,10 +91,10 @@ func (api *API) ApiHandlerTrustRequester(h web.ContextHandlerFunc, middleware ..
 
 // ApiSessionRequiredTrustRequester provides a handler for API endpoints which do require the user to be logged in and
 // are allowed to be requested directly rather than via javascript/XMLHttpRequest, such as emoji or file uploads.
-func (api *API) ApiSessionRequiredTrustRequester(h web.ContextHandlerFunc, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) http.Handler {
+func (api *API) ApiSessionRequiredTrustRequester(h web.ContextHandlerFunc) http.Handler {
 	handler := &web.Handler{
 		GetGlobalAppOptions: api.GetGlobalAppOptions,
-		HandleFunc:          wrapMiddleware(h, middleware),
+		HandleFunc:          h,
 		HandlerName:         web.GetHandlerName(h),
 		RequireSession:      true,
 		TrustRequester:      true,
@@ -110,10 +110,10 @@ func (api *API) ApiSessionRequiredTrustRequester(h web.ContextHandlerFunc, middl
 
 // DisableWhenBusy provides a handler for API endpoints which should be disabled when the server is under load,
 // responding with HTTP 503 (Service Unavailable).
-func (api *API) ApiSessionRequiredDisableWhenBusy(h web.ContextHandlerFunc, middleware ...func(web.ContextHandlerFunc) web.ContextHandlerFunc) http.Handler {
+func (api *API) ApiSessionRequiredDisableWhenBusy(h web.ContextHandlerFunc) http.Handler {
 	handler := &web.Handler{
 		GetGlobalAppOptions: api.GetGlobalAppOptions,
-		HandleFunc:          wrapMiddleware(h, middleware),
+		HandleFunc:          h,
 		HandlerName:         web.GetHandlerName(h),
 		RequireSession:      true,
 		TrustRequester:      false,
